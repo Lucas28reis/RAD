@@ -1,0 +1,122 @@
+import tkinter as tk
+from tkinter import ttk
+import pandas as pd
+
+class principal:
+    #função construtora
+    def __init__(self, win):
+        #configuração inicial
+        self.lbNome=tk.Label(win, text='Nome do aluno')
+        self.lbNota1=tk.Label(win, text='Nota 1')
+        self.lbNota2=tk.Label(win, text='Nota 2')
+        self.txtNome=tk.Entry(bd=3)
+        self.txtNota1=tk.Entry()
+        self.txtNota2=tk.Entry()
+        self.btnCalcular=tk.Button(win, text='Calcular média', 
+                                    command=self.fCalcularMedia)
+        #__________________________________________
+        #componentes da TreeView
+        #__________________________________________
+        self.dadosColunas = ("Aluno", "Nota 1", "Nota 2", "Média", "Situação")
+        self.treeMedias = ttk.Treeview(win,
+                                        columns = self.dadosColunas,
+                                        selectmode='browse')
+        self.verscrlbar = ttk.Scrollbar(win, orient="vertical", 
+                                        command = self.treeMedias.yview)
+        self.verscrlbar.pack(side ='right', fill='x')
+
+        self.treeMedias.configure(yscrollcommand=self.verscrlbar.set)
+
+        self.treeMedias.heading("Aluno", text="Aluno")
+        self.treeMedias.heading("Nota1", text="Nota1")
+        self.treeMedias.heading("Nota2", text="Nota2")
+        self.treeMedias.heading("Media1", text="Media")
+        self.treeMedias.heading("Situação", text="Situação")
+
+        self.treeMedias.column("Aluno", minwidth=0,width=100)
+        self.treeMedias.column("Nota1", midwidth=0, width=100)
+        self.treeMedias.column("Nota2", midwidth=0, width=100)
+        self.treeMedias.column("Média",minwidth=0,width=100)
+        self.treeMedias.column("Situação",minwidth=0,width=100)
+     #-----------------------------
+     #posicionamento dos compnentes
+     #------------------------------
+        self.lbNome.place(x=100, y=50)
+        self.txtNome.place(x=200, y=500)
+
+        self.lbNota1.place(x=100, y=100)
+        self.txtNota1.place(x=200, y=100)
+
+        self.lbNota2.place(x=100, y=150)
+        self.txtNota2.place(x=200, y=150)
+
+        self.treeMedias.place(c=100, y=300)
+        self.verscrlbar.place(x=805, y=300, height=225)
+
+        self.id=0
+        self.iid=0
+
+        self.carregarDadosIniciais()
+     
+        #o objetivo desse método é carregar os dados da planilha para o componente treeview
+    
+    def carregarDadosIniciais(self):
+            try:
+                    fsave='planilhaAlunos.exe'
+                    dados=pd.read_excel(fsave)
+                    nn=len(dados['Aluno'])
+                    for i in range (nn):
+                        nome = dados['Aluno'] [i]
+                        nota1 = str(dados['Nota1'][i])
+                        nota2 = str(dados['Nota2'][i])
+                        media = str(dados['Media'][i])
+                        situacao = dados['Situação'][i]
+                        self.treeMedias.insert('', 'end', 
+                                        iid=self.iid,
+                                        values=(nome,
+                                        nota1,
+                                        nota2,
+                                        media,
+                                        situacao))
+
+                        self.iid = self.iid + 1
+                        self.id = self.id +1
+            except:
+                    print('Ainda não existem dados para carregar')
+
+    def fCalcularMedia(self):
+            try:
+                nome = self.txtNome.get()
+                nota1 = float(self.txtNota1.get())
+                nota2 = float(self.txtNota2.get())
+                media, situacao = self.fVerificarSituacao(nota1, nota2)
+                self.treeMedias.insert('', 'end',
+                                    iid=self.iid,
+                                  Values=(nome,
+                                    str(nota1),
+                                    str(nota2),
+                                    str(media),
+                                    situacao) )
+
+                self.iid = self.iid + 1
+                selfid = self.id + 1
+                self.fSalvarDados()
+
+            except:
+                print('Entre com valores válidos')
+
+            finally:
+                self.txtNome.delete(0, 'end')
+                self.txtNota1.delete(0, 'end')
+                self.txtNota2.delete(0, 'end')
+
+    def fVerificarSituacao(self, nota1, nota2):
+                media=(nota1+nota2)/2
+                if(media>=7.0):
+                    situacao='Aprovado'
+                elif(media>=5.0):
+                    situacao='Em recuperação'
+                else:
+                    situacao='Reprovado'
+
+                return media, situacao
