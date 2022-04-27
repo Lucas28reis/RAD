@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import pandas as pd
 
-class principal:
+class principalRad:
     #função construtora
     def __init__(self, win):
         #configuração inicial
@@ -58,7 +58,7 @@ class principal:
 
         self.carregarDadosIniciais()
      
-        #o objetivo desse método é carregar os dados da planilha para o componente treeview
+    #o objetivo desse método é carregar os dados da planilha para o componente treeview
     
     def carregarDadosIniciais(self):
             try:
@@ -83,6 +83,41 @@ class principal:
                         self.id = self.id +1
             except:
                     print('Ainda não existem dados para carregar')
+
+    def fSalvarDados(self):
+        try:
+            fsave = 'planilhaAluno.xlsx'
+            dados = []
+
+            for line in self.treeMedias.get_children():
+                lstDados=[]
+            for line in self.treeMedias.item(line)['values']:
+                lstDados.append(value)
+
+            dados.append(lstDados)
+
+            df = pd.DataFrame(data=dados, columns=self.dadosColunas)
+
+            planilha = pd.ExcelWriter(fsave)
+            df.to_excel(planilha, 'dados', index=False)                
+
+            planilha.save()
+            print('Dados salvos')
+        except: 
+            print('Não foi possível salvar os dados')
+
+
+
+    def fVerificarSituacao(self, nota1, nota2):
+                media=(nota1+nota2)/2
+                if(media>=7.0):
+                    situacao='Aprovado'
+                elif(media>=5.0):
+                    situacao='Em recuperação'
+                else:
+                    situacao='Reprovado'
+
+                return media, situacao
 
     def fCalcularMedia(self):
             try:
@@ -110,13 +145,8 @@ class principal:
                 self.txtNota1.delete(0, 'end')
                 self.txtNota2.delete(0, 'end')
 
-    def fVerificarSituacao(self, nota1, nota2):
-                media=(nota1+nota2)/2
-                if(media>=7.0):
-                    situacao='Aprovado'
-                elif(media>=5.0):
-                    situacao='Em recuperação'
-                else:
-                    situacao='Reprovado'
-
-                return media, situacao
+janela=tk.Tk()
+principal =principalRad(janela)
+janela.title('Bem Vindo ao RAD')
+janela.geometry("820x600+10+10")
+janela.mainloop()
